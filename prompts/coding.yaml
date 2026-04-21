@@ -1,0 +1,101 @@
+category: coding
+name: 代码能力
+description: 测试模型在实际编程任务中的准确性、代码质量和问题分析能力。
+
+prompts:
+  - id: co1
+    name: 算法实现
+    prompt: |
+      实现一个函数 `find_meeting_slots`，找出多人都有空的会议时间段。
+
+      输入：一个字典，key 是人名，value 是该人「已占用」的时间段列表（用分钟表示，基于 0 点）。
+      额外参数：`duration`（会议时长，分钟），`day_start`（工作开始时间），`day_end`（工作结束时间）。
+      输出：所有满足条件的空闲时间段列表。
+
+      示例：
+      schedules = {
+          "Alice": [(540, 600), (720, 780)],   # 9:00-10:00, 12:00-13:00 占用
+          "Bob":   [(600, 660), (840, 900)],   # 10:00-11:00, 14:00-15:00 占用
+          "Carol": [(480, 540), (780, 840)],   # 8:00-9:00, 13:00-14:00 占用
+      }
+      find_meeting_slots(schedules, duration=60, day_start=480, day_end=1080)
+      # 期望输出：[(660, 720), (900, 960), (960, 1020), (1020, 1080)]
+      # 即 11:00-12:00, 15:00-16:00, 16:00-17:00, 17:00-18:00
+    eval_criteria:
+      - 函数可以运行，无语法错误
+      - 示例输入得到正确输出
+      - 处理了时间段合并/重叠的边界情况
+      - 代码逻辑清晰，变量命名合理
+      - 时间复杂度合理（不要 O(n³) 以上的暴力解）
+
+  - id: co2
+    name: Bug 定位与修复
+    prompt: |
+      下面这段 Python 代码有 3 个 bug，请找出并修复，说明每个 bug 的原因：
+
+      ```python
+      def calculate_user_stats(users):
+          stats = {}
+          total_spent = 0
+
+          for user in users:
+              name = user['name']
+              purchases = user.get('purchases', [])
+
+              # Bug 1 区域
+              avg_purchase = sum(purchases) / len(purchases)
+              stats[name] = avg_purchase
+
+              # Bug 2 区域
+              if user['premium'] == True:
+                  total_spent =+ user['total']
+
+          # Bug 3 区域
+          stats['average_total'] = total_spent / len(users)
+          return stats
+
+      users = [
+          {'name': 'Alice', 'purchases': [100, 200, 150], 'premium': True, 'total': 450},
+          {'name': 'Bob', 'purchases': [], 'premium': False, 'total': 0},
+          {'name': 'Carol', 'purchases': [300], 'premium': True, 'total': 300},
+      ]
+      ```
+    eval_criteria:
+      - 找出 Bug1（purchases 为空时除以零）
+      - 找出 Bug2（=+ 应为 +=，导致 total_spent 每次被重置）
+      - 找出 Bug3（len(users) 可能为0，且语义上应是 premium 用户均值）
+      - 提供修复后的完整代码
+      - 对每个 bug 的解释准确清晰
+
+  - id: co3
+    name: 代码审查
+    prompt: |
+      请对下面这段代码做 Code Review，指出所有问题（安全、性能、可读性、健壮性均要覆盖），
+      并给出改进建议。不需要重写整个函数，列出问题清单即可。
+
+      ```python
+      import subprocess
+      import json
+
+      def run_analysis(user_input):
+          cmd = f"python analyze.py --query {user_input}"
+          result = subprocess.run(cmd, shell=True, capture_output=True)
+          data = json.loads(result.stdout)
+
+          output = []
+          for i in range(len(data)):
+              item = data[i]
+              if item['score'] > 0.5:
+                  output.append(item)
+
+          with open('result.json', 'w') as f:
+              json.dump(output, f)
+
+          return output
+      ```
+    eval_criteria:
+      - 发现命令注入安全漏洞（shell=True + f-string 拼接用户输入）
+      - 发现缺少错误处理（subprocess 失败、JSON 解析失败）
+      - 发现 Python 反模式（range(len(...)) 应用 enumerate 或直接遍历）
+      - 发现硬编码路径问题（result.json）
+      - 提出具体改进建议，不只是泛泛而谈

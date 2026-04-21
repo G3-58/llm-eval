@@ -1,0 +1,44 @@
+# ── 模型配置 ─────────────────────────────────────────────────
+# 未配置 API Key 的模型会自动跳过，不影响其他模型运行
+models:
+  - id: gpt-4o
+    name: "GPT-4o"
+    provider: openai
+    model: gpt-4o
+    temperature: 0.7
+
+  - id: claude-3-5-sonnet
+    name: "Claude 3.5 Sonnet"
+    provider: anthropic
+    model: claude-3-5-sonnet-20241022
+    temperature: 0.7
+
+  - id: qwen-plus
+    name: "通义千问 Plus"
+    provider: dashscope
+    model: qwen-plus
+    temperature: 0.7
+
+  - id: kimi
+    name: "Kimi (moonshot-v1-8k)"
+    provider: moonshot
+    model: moonshot-v1-8k
+    temperature: 0.7
+
+# ── 评测配置 ─────────────────────────────────────────────────
+judge:
+  provider: openai          # 用哪个模型做裁判，改成 dashscope 也行
+  model: gpt-4o
+  fallback_provider: dashscope   # openai 不可用时的备用
+  fallback_model: qwen-plus
+
+# ── 运行配置 ─────────────────────────────────────────────────
+runner:
+  max_concurrency: 4        # 同时跑几个 API 请求
+  timeout_seconds: 60       # 单次请求超时
+  retry: 2                  # 失败重试次数
+
+output:
+  dir: results
+  save_raw: true            # 保存原始响应 JSON
+  generate_report: true     # 自动生成 Markdown 报告

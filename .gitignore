@@ -2,6 +2,7 @@
 __pycache__/
 *.pyc
 results/
+!results/sample_report.md
 .DS_Store
 venv/
 .venv/
